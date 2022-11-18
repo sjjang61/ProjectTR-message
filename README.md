@@ -1,6 +1,6 @@
 # ProjectTR-message
 - messaging server based on web-socket 
-
+- client : http://43.201.154.250/
 
 ## Structure 
 ```python
