@@ -1,19 +1,28 @@
-# ProjectTR-message
-- messaging server based on web-socket 
+
+from enum import Enum, auto
 
 
-## Structure 
-```python
-UserManager
-[ user ] [ user ] [ user ] [ ... ] 
+'''
+Message Format(json)
 
-RoomManager
-[ Room [ user, user ], Room [ user, user], ... ]
-```
+1) CLT --> SVR 
 
-## Protocol
-- defined in protocol.py
+{
+   "command" : "...",
+   "params" : { ... },
+}
 
+2) SVR --> CLT  
+
+{
+   "command" : "...",
+   "params" : { ... },
+}
+'''
+
+class Command(Enum):
+    # CLT -> SVR
+    # CONNECT
     USER_INFO = auto()      # 사용자 정보 전송
     USER_INFO_ACK = auto()
 
@@ -33,5 +42,3 @@ RoomManager
 
     # SVR -> CLT
     SVR_GAME_WAITING_EXPIRE = auto() # 대기시간 종료
-
-
