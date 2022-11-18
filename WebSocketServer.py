@@ -8,5 +8,5 @@ from simple_websocket_server import WebSocketServer, WebSocket
 from socket_handler import SocketHandler
 
 print("start server...")
-server = WebSocketServer('0.0.0.0', 20000, SocketHandler)
+server = WebSocketServer('0.0.0.0', 8888, SocketHandler)
 server.serve_forever()
