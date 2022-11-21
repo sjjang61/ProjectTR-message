@@ -2,8 +2,9 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Insert title here</title>
-    </head>
+    <title>WebSocketClient</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+</head>
 <body>
     <form onsubmit="return false;">
         <!-- 서버로 메시지를 보낼 텍스트 박스 -->
@@ -11,8 +12,8 @@
             <option>USER_INFO</option>
             <option>JOIN_ROOM</option>
             <option>GAME_START</option>
-        </select>
-        <input id="textMessage" type="text" size="80">
+        </select><p>
+        <textarea id="textMessage" type="text" cols="50" rows="10"></textarea>
         <!-- 전송 버튼 -->
         <input onclick="sendMessage()" value="Send" type="button">
         <!-- 접속 종료 버튼 -->
@@ -22,17 +23,23 @@
     <!-- 출력 area -->
     <textarea id="messageTextArea" rows="50" cols="50" style="width:80%;"></textarea>
     <script type="text/javascript">
+
+        $( document).on( "change", "#command", $.proxy( this.onChangeSelect, this ));
+        setTimeout( function(){
+            $("#command").trigger( "change" );
+        }, 100 );
+
+
         // 웹 서버를 접속한다.
-        var webSocket = new WebSocket("ws://43.201.154.250:8888");
+        var server = "ws://43.201.154.250:8888";
+        //var server = "ws://localhost:8888";
+        var webSocket = new WebSocket(server);
         // 웹 서버와의 통신을 주고 받은 결과를 출력할 오브젝트를 가져옵니다.
         var messageTextArea = document.getElementById("messageTextArea");
 
         // 소켓 접속이 되면 호출되는 함수
         webSocket.onopen = function(message){
             messageTextArea.value += "Server connect...\n";
-
-            var data = { "command" : "USER_INFO", "params" : { "user_id" : 100, "id" : 'shk' }};
-            webSocket.send( JSON.stringify( data ));
         };
         // 소켓 접속이 끝나면 호출되는 함수
         webSocket.onclose = function(message){
@@ -45,23 +52,40 @@
         // 소켓 서버로 부터 메시지가 오면 호출되는 함수.
         webSocket.onmessage = function(message){
             // 출력 area에 메시지를 표시한다.
-            messageTextArea.value += "Recieve From Server => "+message.data+"\n";
+            messageTextArea.value += "[RECV] From Server => "+message.data+"\n";
         };
+
         // 서버로 메시지를 전송하는 함수
         function sendMessage(){
             var message = document.getElementById("textMessage");
-            //var command = document.getElementById("command");
-            messageTextArea.value += "Send to Server => "+message.value+"\n";
+            var command = document.getElementById("command");
+            var data = { "command" : command.value, "params" : JSON.parse( message.value ) };
+            var sendData = JSON.stringify( data);
+            messageTextArea.value += "[SEND] to Server => "+ sendData +"\n";
+
             //웹소켓으로 textMessage객체의 값을 보낸다.
-            //var data = { "command" : command.value, "params" : { "message" : message.value }};
-            //webSocket.send(message.value);
-            var data = { "command" : "JOIN_ROOM", "params" : { "message" : message.value }};
-            webSocket.send( JSON.stringify( data ));
+            webSocket.send( sendData );
             //textMessage객체의 값 초기화
             message.value = "";
         }
         function disconnect(){
             webSocket.close();
+        }
+
+        function onChangeSelect( evt ) {
+
+            var elTarget = $(evt.target);
+            var selectedValue = elTarget.val();
+            //console.log("[select] onchage : " + selectedValue );
+
+            if ( selectedValue == 'USER_INFO'){
+                var params = { "user_id" : 1, "id" : 'shk' };
+                $("#textMessage").val( JSON.stringify( params ) )
+            }
+            else if ( selectedValue == 'JOIN_ROOM'){
+                var params = {};
+                $("#textMessage").val( JSON.stringify( params ) )
+            }
         }
     </script>
     </body>
