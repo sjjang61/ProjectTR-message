@@ -12,6 +12,7 @@
             <option>USER_INFO</option>
             <option>JOIN_ROOM</option>
             <option>GAME_START</option>
+            <option>BROADCAST_ROOM</option>
         </select><p>
         <textarea id="textMessage" type="text" cols="50" rows="10"></textarea>
         <!-- 전송 버튼 -->
@@ -32,7 +33,6 @@
 
         // 웹 서버를 접속한다.
         var server = "ws://43.201.154.250:8888";
-        //var server = "ws://localhost:8888";
         var webSocket = new WebSocket(server);
         // 웹 서버와의 통신을 주고 받은 결과를 출력할 오브젝트를 가져옵니다.
         var messageTextArea = document.getElementById("messageTextArea");
@@ -76,7 +76,7 @@
 
             var elTarget = $(evt.target);
             var selectedValue = elTarget.val();
-            //console.log("[select] onchage : " + selectedValue );
+            console.log("[select] onchage : " + selectedValue );
 
             if ( selectedValue == 'USER_INFO'){
                 var params = { "user_id" : 1, "id" : 'shk' };
@@ -84,6 +84,10 @@
             }
             else if ( selectedValue == 'JOIN_ROOM'){
                 var params = {};
+                $("#textMessage").val( JSON.stringify( params ) )
+            }
+            else if ( selectedValue == 'BROADCAST_ROOM' ){
+                var params = { 'text' : 'hello world' };
                 $("#textMessage").val( JSON.stringify( params ) )
             }
         }
