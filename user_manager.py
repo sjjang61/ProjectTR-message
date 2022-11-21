@@ -1,5 +1,6 @@
-import json
 from room_manager import RoomManager
+from http_manager import get_user_api, ApiResource
+from protocol import Command
 
 class UserManager:
     def __init__(self):
@@ -18,10 +19,13 @@ class UserManager:
 
 
     def del_user(self, socketHandler ):
-        # [to-do]
-        # room 에서 속한 정보가 있다면 삭제 처리 필요.
         user = self.get_user( socketHandler )
         if user != None:
+            room = self.room_manager.get_user_room( user )
+            if room != None:
+                room.leave( user )
+                room.broadcast( { "command": Command.SVR_ROOM_USER_DISCONNECT.name, "user" : user.user_data }, user )
+
             self.user_list.remove(user)
             print("[UserManager] delete user")
 
@@ -35,9 +39,9 @@ class UserManager:
             if user.socketHandler != socketHandler:
                 user.send_message( msg )
 
-    def send_ack_message(self, cmd, socketHandler ):
+    def send_ack_message(self, socketHandler, cmd, data = {} ):
         user = self.get_user(socketHandler)
-        user.send_ack_message( cmd )
+        user.send_ack_message( cmd, data )
 
     def get_user_list(self):
         return self.user_list
@@ -45,10 +49,14 @@ class UserManager:
     def join_room(self, socketHandler ):
         print("[UserManager] Join room")
         user = self.get_user( socketHandler )
-        self.room_manager.join_room( user )
+        room = self.room_manager.join_room( user )
+        return room, user
 
     def set_user_info(self, user_id, id, socketHandler ):
         user = self.get_user(socketHandler)
         if user != None:
-            user.set_info( user_id, id )
+            user_data = get_user_api( ApiResource.USER.name, user_id)
+            user.set_info(user_id, id, user_data)
             user.print()
+
+        return user

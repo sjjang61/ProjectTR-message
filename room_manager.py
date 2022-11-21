@@ -13,6 +13,13 @@ class RoomManager:
 
         return None
 
+    def get_user_room(self, user ):
+        for room in self.room_list:
+            if room.is_in_user( user ) == True:
+                return room
+        return None
+
+
     def join_room(self, user ):
         room = self.get_joinable_room()
         if room == None:
@@ -21,7 +28,7 @@ class RoomManager:
 
         room.join( user )
         room.print()
-        # user.send_ack_message( Command.JOIN_ROOM_ACK.name ) # Command.JOIN_ROOM_ACK.value (int)
+        return room
 
 
     def add_room( self ):
@@ -37,8 +44,20 @@ class RoomManager:
                 print("[RoomManager] delete room")
                 continue
 
-    def send_message(self, target_room, msg ):
+    # def send_message(self, target_room, msg ):
+    #     for room in self.room_list:
+    #         if room == target_room:
+    #             print("[RoomManager] send message, ", msg )
+    #             # room.send_message( msg )
+
+    def send_message(self, target_room, cmd, data, is_except_user = None ):
         for room in self.room_list:
             if room == target_room:
-                print("[RoomManager] send message, ", msg )
-                # room.send_message( msg )
+                print("[RoomManager] send message, ", cmd, data  )
+                room.broadcast( cmd, data, is_except_user )
+
+
+    def del_user(self, user ):
+        room = self.get_user_room( user )
+        room.leave( user )
+        self.send_message( room, {} )

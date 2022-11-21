@@ -25,19 +25,31 @@ class SocketHandler(WebSocket):
 
         # print( "[RecvMessage] cmd = %r, params = %r" % ( cmd, params ))
         if cmd == Command.USER_INFO.name:
-            user_manager.set_user_info( params['user_id'], params['id'], self )
-            user_manager.send_ack_message( Command.USER_INFO_ACK.name, self )
+            user = user_manager.set_user_info( params['user_id'], params['id'], self )
+            user.send_ack_message( { "command" : Command.USER_INFO_ACK.name, "user" : user.user_data } )
 
         elif cmd == Command.JOIN_ROOM.name:
-            user_manager.join_room( self )
-            user_manager.send_ack_message( Command.JOIN_ROOM_ACK.name, self )
+            room, user = user_manager.join_room( self )
+
+            # 방에 존재하는 전체 사용자 정보 (나에게 : 전체 사용자 정보)
+            room_user_list = []
+            for room_user in room.user_list:
+                room_user_list.append( room_user.user_data )
+            user.send_ack_message( { "command" : Command.JOIN_ROOM_ACK.name, "room_id" : room.room_id, "user_list" : room_user_list } )
+
+            # 나를 제외한 방에 있는 기존 사람들에게 메시지 알람 (새로 들어온 정보전송)
+            room.broadcast( { "command":Command.SVR_ROOM_USER_JOIN.name, "room_id" : room.room_id, "user" : user.user_data }, user )
+
+            # 인원 풀 상태
+            if room.is_full():
+                room.broadcast( { "command" : Command.SVR_ROOM_READY.name } )
 
         elif cmd == Command.START_GAME.name:
-            user_manager.send_ack_message(Command.START_GAME_ACK.name, self)
+            user_manager.send_ack_message(self, Command.START_GAME_ACK.name )
 
         elif cmd == Command.END_GAME.name:
             # 게임룸 사용자 전체에게 보내야 할지도...
-            user_manager.send_ack_message(Command.START_END_ACK.name, self)
+            user_manager.send_ack_message(self, Command.START_END_ACK.name)
 
         # elif cmd == Command.END_ANORMAL_GAME.name:
 
