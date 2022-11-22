@@ -51,6 +51,10 @@ class SocketHandler(WebSocket):
             # 게임룸 사용자 전체에게 보내야 할지도...
             user_manager.send_ack_message(self, Command.START_END_ACK.name)
 
+        elif cmd == Command.BROADCAST_ROOM.name:
+            room = user_manager.get_user_room( self )
+            room.broadcast({"command": Command.BROADCAST_ROOM_ACK.name, "text": params['text'] })
+
         # elif cmd == Command.END_ANORMAL_GAME.name:
 
         else:

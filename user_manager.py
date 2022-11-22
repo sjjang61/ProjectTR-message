@@ -60,3 +60,8 @@ class UserManager:
             user.print()
 
         return user
+
+    def get_user_room(self, socketHandler ):
+        user = self.get_user(socketHandler)
+        room = self.room_manager.get_user_room( user )
+        return room

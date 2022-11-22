@@ -39,6 +39,9 @@ class Command(Enum):
     LEAVE_ROOM = auto()     # 룸 퇴장
     LEAVE_ROOM_ACK = auto()
 
+    BROADCAST_ROOM = auto() # 룸 사용자들에게 브로드캐스트 메시지 전송
+    BROADCAST_ROOM_ACK = auto()
+
     START_GAME = auto()     # 게임시작
     START_GAME_ACK = auto()
 
